@@ -65,8 +65,6 @@ if __name__ == "__main__":
         (
             ("input", "op1", "<float>", 12),
             ("input", "op2", "<float>", 12),
-            ("input", "op3", "<float>", 12),
-            ("input", "op4", "<float>", 12),
             ("output", "data_out", "<float>", 12),
         )
     )

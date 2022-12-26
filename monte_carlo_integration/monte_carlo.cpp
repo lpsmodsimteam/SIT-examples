@@ -56,8 +56,9 @@ void monte_carlo::finish() {
 
 bool monte_carlo::tick(SST::Cycle_t current_cycle) {
 
-    m_keep_send = current_cycle < 39950;
-    m_keep_recv = current_cycle < 39950 - 1;
+    m_keep_send = current_cycle < 40000;
+    m_keep_recv = current_cycle < 40000 - 1;
+    mt19937_rdy = current_cycle > 39940;
 
     std::string _seed = "0000000000";
     std::string _seed2 = "0000000101";
@@ -81,15 +82,20 @@ bool monte_carlo::tick(SST::Cycle_t current_cycle) {
     x_rand32_din_link->send(new SST::Interfaces::StringEvent(
         std::to_string(m_keep_send) + std::to_string(m_keep_recv) + _rst +
         _seed + _seed_start + _rdy + std::to_string(current_cycle % 2)));
+
     y_rand32_din_link->send(new SST::Interfaces::StringEvent(
         std::to_string(m_keep_send) + std::to_string(m_keep_recv) + _rst +
         _seed2 + _seed_start + _rdy + std::to_string(current_cycle % 2)));
 
     if (current_cycle > 39940) {
 
-        m_output.verbose(CALL_INFO, 1, 0, "cycle: %d x: %f\n", current_cycle,
+        m_output.verbose(CALL_INFO, 1, 0, "cycle: %ld x: %f\n", current_cycle,
                          x);
         m_output.verbose(CALL_INFO, 1, 0, "y: %f\n", y);
+    }
+
+    if (current_cycle > 40000) {
+        primaryComponentOKToEndSim();
     }
 
     return current_cycle > 40000;
@@ -98,12 +104,13 @@ bool monte_carlo::tick(SST::Cycle_t current_cycle) {
 void monte_carlo::x_rand32(SST::Event* ev) {
 
     auto* se = dynamic_cast<SST::Interfaces::StringEvent*>(ev);
-    if (se) {
-        std::string temp = se->getString();
-        // x = std::stof(temp.substr(0, temp.length() - 2));
+    if (mt19937_rdy && se) {
+        std::string temp_se = se->getString();
+        temp_se = temp_se.substr(0, temp_se.length() - 2);
+        SigWidth::align_signal_width(10, temp_se);
         div_x_din_link->send(new SST::Interfaces::StringEvent(
             std::to_string(m_keep_send) + std::to_string(m_keep_recv) +
-            temp.substr(0, temp.length() - 2)));
+            temp_se + "4294967295"));
     }
 
     delete se;
@@ -112,12 +119,13 @@ void monte_carlo::x_rand32(SST::Event* ev) {
 void monte_carlo::y_rand32(SST::Event* ev) {
 
     auto* se = dynamic_cast<SST::Interfaces::StringEvent*>(ev);
-    if (se) {
-        std::string temp = se->getString();
-        // y = std::stof(temp.substr(0, temp.length() - 2));
+    if (mt19937_rdy && se) {
+        std::string temp_se = se->getString();
+        temp_se = temp_se.substr(0, temp_se.length() - 2);
+        SigWidth::align_signal_width(10, temp_se);
         div_y_din_link->send(new SST::Interfaces::StringEvent(
             std::to_string(m_keep_send) + std::to_string(m_keep_recv) +
-            temp.substr(0, temp.length() - 2)));
+            temp_se + "4294967295"));
     }
 
     delete se;
@@ -125,8 +133,8 @@ void monte_carlo::y_rand32(SST::Event* ev) {
 
 void monte_carlo::div_x(SST::Event* ev) {
     auto* se = dynamic_cast<SST::Interfaces::StringEvent*>(ev);
-    if (se) {
-        x = std::stof(se->getString()) / 4294967295;
+    if (se && se->getString().length()) {
+        x = std::stof(se->getString());
     }
 
     delete se;
@@ -134,8 +142,8 @@ void monte_carlo::div_x(SST::Event* ev) {
 
 void monte_carlo::div_y(SST::Event* ev) {
     auto* se = dynamic_cast<SST::Interfaces::StringEvent*>(ev);
-    if (se) {
-        y = std::stof(se->getString()) / 4294967295;
+    if (se && se->getString().length()) {
+        y = std::stof(se->getString());
     }
 
     delete se;

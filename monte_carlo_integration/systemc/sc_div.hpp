@@ -6,7 +6,7 @@ SC_MODULE(sc_div) {
     sc_out<float> data_out;
 
     void do_div() {
-        data_out.write(op1.read() / op2.read());
+        data_out.write(op1.read() / static_cast<float>(op2.read()));
     }
 
     SC_CTOR(sc_div) {

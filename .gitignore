@@ -24,7 +24,6 @@ __pycache__/
 build/
 dist/
 *.egg-info/
-gen/
 
 *.log
 *.json

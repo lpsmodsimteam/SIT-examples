@@ -5,6 +5,8 @@
 #include <sst/core/interfaces/stringEvent.h>
 #include <sst/core/link.h>
 
+#include "sigwidth.hpp"
+
 class monte_carlo : public SST::Component {
 
 public:
@@ -56,7 +58,8 @@ private:
         *div_y_dout_link, *sum_sq_din_link, *sum_sq_dout_link;
 
     bool m_keep_send{}, m_keep_recv{};
-    float x{}, y{}, m_fatality{}, m_birth_rate{}, m_cure{}, m_research{};
+    bool mt19937_rdy{};
+    float x{}, y{};
 };
 
 #endif // MONTE_CARLO_HPP
