@@ -53,9 +53,9 @@ private:
 
     // SST attributes
     SST::Output m_output;
-    SST::Link *x_rand32_din_link, *x_rand32_dout_link, *y_rand32_din_link,
-        *y_rand32_dout_link, *div_x_din_link, *div_x_dout_link, *div_y_din_link,
-        *div_y_dout_link, *sum_sq_din_link, *sum_sq_dout_link;
+
+    LinkWrapper *x_rand32_link, *y_rand32_link, *div_x_link, *div_y_link,
+        *sum_sq_link;
 
     bool m_keep_send{}, m_keep_recv{};
     bool mt19937_rdy{};

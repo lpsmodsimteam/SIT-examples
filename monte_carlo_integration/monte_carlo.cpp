@@ -2,40 +2,45 @@
 
 monte_carlo::monte_carlo(SST::ComponentId_t id, SST::Params& params)
     : SST::Component(id),
-
       // collect all the parameters from the project driver
       seed(params.find<uint16_t>("SEED", 0)),
-      output(params.find<bool>("OUTPUT", true)),
+      output(params.find<bool>("OUTPUT", true)) {
 
-      x_rand32_din_link(configureLink("x_rand32_din")),
-      x_rand32_dout_link(configureLink(
-          "x_rand32_dout",
-          new SST::Event::Handler<monte_carlo>(this, &monte_carlo::x_rand32))),
+    x_rand32_link = new LinkWrapper(&m_keep_send, &m_keep_recv);
+    x_rand32_link->din_link = configureLink("x_rand32_din");
+    x_rand32_link->dout_link = configureLink(
+        "x_rand32_dout",
+        new SST::Event::Handler<monte_carlo>(this, &monte_carlo::x_rand32));
 
-      y_rand32_din_link(configureLink("y_rand32_din")),
-      y_rand32_dout_link(configureLink(
-          "y_rand32_dout",
-          new SST::Event::Handler<monte_carlo>(this, &monte_carlo::y_rand32))),
+    y_rand32_link = new LinkWrapper(&m_keep_send, &m_keep_recv);
+    y_rand32_link->din_link = configureLink("y_rand32_din");
+    y_rand32_link->dout_link = configureLink(
+        "y_rand32_dout",
+        new SST::Event::Handler<monte_carlo>(this, &monte_carlo::y_rand32));
 
-      div_x_din_link(configureLink("div_x_din")),
-      div_x_dout_link(configureLink(
-          "div_x_dout",
-          new SST::Event::Handler<monte_carlo>(this, &monte_carlo::div_x))),
+    div_x_link = new LinkWrapper(&m_keep_send, &m_keep_recv);
+    div_x_link->din_link = configureLink("div_x_din");
+    div_x_link->dout_link = configureLink(
+        "div_x_dout",
+        new SST::Event::Handler<monte_carlo>(this, &monte_carlo::div_x));
 
-      div_y_din_link(configureLink("div_y_din")),
-      div_y_dout_link(configureLink(
-          "div_y_dout",
-          new SST::Event::Handler<monte_carlo>(this, &monte_carlo::div_y))),
+    div_y_link = new LinkWrapper(&m_keep_send, &m_keep_recv);
+    div_y_link->din_link = configureLink("div_y_din");
+    div_y_link->dout_link = configureLink(
+        "div_y_dout",
+        new SST::Event::Handler<monte_carlo>(this, &monte_carlo::div_y));
 
-      sum_sq_din_link(configureLink("sum_sq_din")),
-      sum_sq_dout_link(configureLink(
-          "sum_sq_dout",
-          new SST::Event::Handler<monte_carlo>(this, &monte_carlo::sum_sq))) {
+    sum_sq_link = new LinkWrapper(&m_keep_send, &m_keep_recv);
+    sum_sq_link->din_link = configureLink("sum_sq_din");
+    sum_sq_link->dout_link = configureLink(
+        "sum_sq_dout",
+        new SST::Event::Handler<monte_carlo>(this, &monte_carlo::sum_sq));
 
     m_output.init("\033[93mmonte_carlo-" + getName() + "\033[0m -> ", 1, 0,
                   SST::Output::STDOUT);
 
     m_output.setVerboseLevel(output);
+
     // Just register a plain clock for this simple example
     registerClock(
         "1Hz", new SST::Clock::Handler<monte_carlo>(this, &monte_carlo::tick));
@@ -79,13 +84,11 @@ bool monte_carlo::tick(SST::Cycle_t current_cycle) {
         _rdy = "1";
     }
 
-    x_rand32_din_link->send(new SST::Interfaces::StringEvent(
-        std::to_string(m_keep_send) + std::to_string(m_keep_recv) + _rst +
-        _seed + _seed_start + _rdy + std::to_string(current_cycle % 2)));
+    x_rand32_link->send(_rst, _seed, _seed_start, _rdy,
+                        std::to_string(current_cycle % 2));
 
-    y_rand32_din_link->send(new SST::Interfaces::StringEvent(
-        std::to_string(m_keep_send) + std::to_string(m_keep_recv) + _rst +
-        _seed2 + _seed_start + _rdy + std::to_string(current_cycle % 2)));
+    y_rand32_link->send(_rst, _seed2, _seed_start, _rdy,
+                        std::to_string(current_cycle % 2));
 
     if (current_cycle > 39940) {
 
@@ -108,9 +111,7 @@ void monte_carlo::x_rand32(SST::Event* ev) {
         std::string temp_se = se->getString();
         temp_se = temp_se.substr(0, temp_se.length() - 2);
         SigWidth::align_signal_width(10, temp_se);
-        div_x_din_link->send(new SST::Interfaces::StringEvent(
-            std::to_string(m_keep_send) + std::to_string(m_keep_recv) +
-            temp_se + "4294967295"));
+        div_x_link->send(temp_se, "4294967295");
     }
 
     delete se;
@@ -123,9 +124,7 @@ void monte_carlo::y_rand32(SST::Event* ev) {
         std::string temp_se = se->getString();
         temp_se = temp_se.substr(0, temp_se.length() - 2);
         SigWidth::align_signal_width(10, temp_se);
-        div_y_din_link->send(new SST::Interfaces::StringEvent(
-            std::to_string(m_keep_send) + std::to_string(m_keep_recv) +
-            temp_se + "4294967295"));
+        div_y_link->send(temp_se, "4294967295");
     }
 
     delete se;

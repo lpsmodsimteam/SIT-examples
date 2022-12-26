@@ -24,11 +24,11 @@ def mt19937_test(dut):
         dut.seed_start.value = int(signal[11:12])
         dut.ready.value = int(signal[12:13])
         dut.clk.value = int(signal[13:14]) % 2
-        yield cocotb.triggers.Timer(1, units='ns')
+        yield cocotb.triggers.Timer(1, units="ns")
 
         _outputs = (
-            str(dut.r_num.value).encode() 
-            + str(dut.valid.value).encode() 
+            str(int(str(dut.r_num.value), 2)).encode()
+            + str(dut.valid.value).encode()
             + str(dut.busy.value).encode()
         )
         _sock.sendall(_outputs)
