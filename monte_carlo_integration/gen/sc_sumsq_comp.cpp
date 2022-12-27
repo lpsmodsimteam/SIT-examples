@@ -1,8 +1,8 @@
-#include <sst/sit/sit.hpp>
-
 #include <sst/core/component.h>
 #include <sst/core/interfaces/stringEvent.h>
 #include <sst/core/link.h>
+
+#include <sst/sit/sit.hpp>
 
 class sc_sumsq : public SST::Component {
    private:
@@ -16,26 +16,28 @@ class sc_sumsq : public SST::Component {
 
    public:
     // constructor for component
-    sc_sumsq(SST::ComponentId_t id, SST::Params &params)
+    sc_sumsq(SST::ComponentId_t id, SST::Params& params)
         : SST::Component(id),
           m_signal_io(12),
           m_clock(params.find<std::string>("clock", "")),
           m_proc(params.find<std::string>("proc", "")),
           m_ipc_port(params.find<std::string>("ipc_port", "")),
           m_din_link(configureLink(
-              "sc_sumsq_din", new SST::Event::Handler<sc_sumsq>(this, &sc_sumsq::handle_event)
+              "sc_sumsq_din",
+              new SST::Event::Handler<sc_sumsq>(this, &sc_sumsq::handle_event)
           )),
           m_dout_link(configureLink("sc_sumsq_dout")) {
 
         m_output.init("gen-" + getName() + " -> ", 1, 0, SST::Output::STDOUT);
         m_output.setVerboseLevel(params.find<bool>("OUTPUT", true));
 
-        registerClock(m_clock, new SST::Clock::Handler<sc_sumsq>(this, &sc_sumsq::tick));
+        registerClock(
+            m_clock, new SST::Clock::Handler<sc_sumsq>(this, &sc_sumsq::tick)
+        );
 
         if (!(m_din_link && m_dout_link)) {
             m_output.fatal(CALL_INFO, -1, "Failed to configure port\n");
         }
-
     }
 
     void setup() {
@@ -44,8 +46,10 @@ class sc_sumsq : public SST::Component {
 
         if (!child_pid) {
 
-            char *args[] = {&m_proc[0u], &m_ipc_port[0u], nullptr};
-            m_output.verbose(CALL_INFO, 1, 0, "Forking process \"%s\"...\n", m_proc.c_str());
+            char* args[] = {&m_proc[0u], &m_ipc_port[0u], nullptr};
+            m_output.verbose(
+                CALL_INFO, 1, 0, "Forking process \"%s\"...\n", m_proc.c_str()
+            );
             execvp(args[0], args);
 
         } else {
@@ -53,19 +57,21 @@ class sc_sumsq : public SST::Component {
             m_signal_io.set_addr(m_ipc_port);
             m_signal_io.recv();
             if (child_pid == std::stoi(m_signal_io.get())) {
-                m_output.verbose(CALL_INFO, 1, 0, "Process \"%s\" successfully synchronized\n",
-                                 m_proc.c_str());
+                m_output.verbose(
+                    CALL_INFO, 1, 0,
+                    "Process \"%s\" successfully synchronized\n", m_proc.c_str()
+                );
             }
-
         }
-
     }
 
-    bool tick(SST::Cycle_t) { return false; };
+    bool tick(SST::Cycle_t) {
+        return false;
+    };
 
-    void handle_event(SST::Event *ev) {
+    void handle_event(SST::Event* ev) {
 
-        auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
+        auto* se = dynamic_cast<SST::Interfaces::StringEvent*>(ev);
 
         if (se) {
 
@@ -88,25 +94,20 @@ class sc_sumsq : public SST::Component {
             // inputs to parent SST model, outputs from SystemC child process
             std::string _data_out = m_signal_io.get();
             m_dout_link->send(new SST::Interfaces::StringEvent(_data_out));
-
         }
-
     }
 
     // Register the component
     SST_ELI_REGISTER_COMPONENT(
-        sc_sumsq, // class
-        "monte_carlo", // element library
-        "sc_sumsq", // component
-        SST_ELI_ELEMENT_VERSION(1, 0, 0),
-        "",
-        COMPONENT_CATEGORY_UNCATEGORIZED
+        sc_sumsq,       // class
+        "monte_carlo",  // element library
+        "sc_sumsq",     // component
+        SST_ELI_ELEMENT_VERSION(1, 0, 0), "", COMPONENT_CATEGORY_UNCATEGORIZED
     )
 
     // Port name, description, event type
     SST_ELI_DOCUMENT_PORTS(
-        { "sc_sumsq_din", "sc_sumsq data in", { "sst.Interfaces.StringEvent" }},
-        { "sc_sumsq_dout", "sc_sumsq data out", { "sst.Interfaces.StringEvent" }}
+        {"sc_sumsq_din", "sc_sumsq data in", {"sst.Interfaces.StringEvent"}},
+        {"sc_sumsq_dout", "sc_sumsq data out", {"sst.Interfaces.StringEvent"}}
     )
-
 };

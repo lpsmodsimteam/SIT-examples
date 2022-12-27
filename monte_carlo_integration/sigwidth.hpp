@@ -1,16 +1,15 @@
 #ifndef SIGWIDTH_HPP
 #define SIGWIDTH_HPP
 
-#include <iomanip>
-#include <sstream>
-
 #include <sst/core/component.h>
 #include <sst/core/interfaces/stringEvent.h>
 #include <sst/core/link.h>
 
-class SigWidth {
+#include <iomanip>
+#include <sstream>
 
-public:
+class SigWidth {
+   public:
     static void align_signal_width(int width, std::string& signal) {
         int _len = signal.length();
         if (_len < width) {
@@ -33,10 +32,9 @@ public:
 };
 
 class LinkWrapper : public SST::Link {
-
     bool *m_keep_send{}, *m_keep_recv{};
 
-public:
+   public:
     SST::Link *din_link, *dout_link;
     LinkWrapper(bool* keep_send, bool* keep_recv) {
         m_keep_send = keep_send;
@@ -47,15 +45,16 @@ public:
         return s;
     }
 
-    template <typename... Args> void send(Args const&... args) {
-
+    template <typename... Args>
+    void send(Args const&... args) {
         std::string s;
         int unpack[]{0, (s += to_string(args), 0)...};
         static_cast<void>(unpack);
 
         din_link->send(new SST::Interfaces::StringEvent(
-            std::to_string(*m_keep_send) + std::to_string(*m_keep_recv) + s));
+            std::to_string(*m_keep_send) + std::to_string(*m_keep_recv) + s
+        ));
     }
 };
 
-#endif // SIGWIDTH_HPP
+#endif  // SIGWIDTH_HPP

@@ -1,6 +1,7 @@
-#include "/home/sabbir/Desktop/SIT-examples/monte_carlo_integration/systemc/sc_div.hpp"
 #include <iomanip>
 #include <sst/sit/sit.hpp>
+
+#include "/home/sabbir/Desktop/SIT-examples/monte_carlo_integration/systemc/sc_div.hpp"
 
 int sc_main(int, char* argv[]) {
 

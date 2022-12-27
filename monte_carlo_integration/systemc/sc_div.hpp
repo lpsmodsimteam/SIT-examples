@@ -1,6 +1,7 @@
 #include <systemc.h>
 
 SC_MODULE(sc_div) {
+
     sc_in<sc_uint<32>> op1;
     sc_in<sc_uint<32>> op2;
     sc_out<float> data_out;

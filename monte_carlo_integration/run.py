@@ -64,17 +64,19 @@ with tempfile.NamedTemporaryFile() as tfp:
     )
     connect_comps(sum_sq, "sc_sumsq", "sum_sq")
 
-# with tempfile.NamedTemporaryFile() as tfp:
+with tempfile.NamedTemporaryFile() as tfp:
 
-#     cacc = sst.Component("Conditional Accumulator <SystemC>", "monte_carlo.cacc")
-#     cacc.addParams(
-#         {
-#             "clock": CLOCK,
-#             "proc": BASE_PATH / "sc_cacc.o",
-#             "ipc_port": tfp.name,
-#         }
-#     )
-#     connect_comps(cacc, "sc_cacc", "cacc")
+    cacc = sst.Component(
+        "Conditional Accumulator <SystemC>", "monte_carlo.sc_cacc"
+    )
+    cacc.addParams(
+        {
+            "clock": CLOCK,
+            "proc": BASE_PATH / "sc_cacc.o",
+            "ipc_port": tfp.name,
+        }
+    )
+    connect_comps(cacc, "sc_cacc", "cacc")
 ###############################################################################
 
 with tempfile.NamedTemporaryFile() as tfp:
