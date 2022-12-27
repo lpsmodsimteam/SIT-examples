@@ -1,8 +1,8 @@
 #include "/home/sabbir/Desktop/SIT-examples/monte_carlo_integration/systemc/sc_sumsq.hpp"
-#include <sst/sit/sit.hpp>
 #include <iomanip>
+#include <sst/sit/sit.hpp>
 
-int sc_main(int, char *argv[]) {
+int sc_main(int, char* argv[]) {
 
     sc_report_handler::set_actions(SC_ID_NO_SC_START_ACTIVITY_, SC_DO_NOTHING);
     // ---------- SYSTEMC UUT INIT ---------- //
@@ -19,7 +19,7 @@ int sc_main(int, char *argv[]) {
 
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
     // Initialize signal handlers
-    SocketSignal m_signal_io(25, false);
+    SocketSignal m_signal_io(17, false);
     m_signal_io.set_addr(argv[1]);
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
 
@@ -39,11 +39,13 @@ int sc_main(int, char *argv[]) {
         if (_data_in[0] == '0') {
             break;
         }
-        op1 = std::stof(_data_in.substr(1, 12));
-        op2 = std::stof(_data_in.substr(13, 12));
+        op1 = std::stof(_data_in.substr(1, 8));
+        op2 = std::stof(_data_in.substr(9, 8));
 
         // SENDING
         sc_start();
+
+        std::cout << op1 << "^2 + " << op2 << "^2 = " << data_out << '\n';
 
         _data_out << std::fixed << std::setprecision(9) << data_out;
 
@@ -51,9 +53,7 @@ int sc_main(int, char *argv[]) {
         m_signal_io.send();
 
         _data_out.str(std::string());
-
     }
 
     return 0;
-
 }

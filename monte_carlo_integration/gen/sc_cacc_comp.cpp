@@ -18,7 +18,7 @@ class sc_cacc : public SST::Component {
     // constructor for component
     sc_cacc(SST::ComponentId_t id, SST::Params &params)
         : SST::Component(id),
-          m_signal_io(24),
+          m_signal_io(20),
           m_clock(params.find<std::string>("clock", "")),
           m_proc(params.find<std::string>("proc", "")),
           m_ipc_port(params.find<std::string>("ipc_port", "")),

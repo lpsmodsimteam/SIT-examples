@@ -58,8 +58,11 @@ private:
         *sum_sq_link;
 
     bool m_keep_send{}, m_keep_recv{};
+
     bool mt19937_rdy{};
-    float x{}, y{};
+    float x_val_norm{}, y_val_norm{};
+    bool x_val_rdy{}, y_val_rdy{};
+    float inner{}, outer{};
 };
 
 #endif // MONTE_CARLO_HPP

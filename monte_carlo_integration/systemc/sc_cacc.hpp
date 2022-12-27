@@ -2,14 +2,14 @@
 
 SC_MODULE(sc_cacc) {
     sc_in<float> dist;
-    sc_in<float> inner;
-    sc_in<float> outer;
-    sc_out<float> new_inner;
-    sc_out<float> new_outer;
+    sc_in<sc_uint<32>> inner;
+    sc_in<sc_uint<32>> outer;
+    sc_out<sc_uint<32>> new_inner;
+    sc_out<sc_uint<32>> new_outer;
 
     const float radius = 1.0;
-    float temp_inner = inner.read();
-    float temp_outer = outer.read();
+    unsigned int temp_inner = inner.read();
+    unsigned int temp_outer = outer.read();
 
     void cond_acc() {
         if (dist < radius) {

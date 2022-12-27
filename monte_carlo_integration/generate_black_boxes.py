@@ -46,10 +46,10 @@ if __name__ == "__main__":
     sc_cacc.set_ports(
         (
             ("input", "dist", "<float>", 12),
-            ("input", "inner", "<float>", 12),
-            ("input", "outer", "<float>", 12),
-            ("output", "new_inner", "<float>", 12),
-            ("output", "new_outer", "<float>", 12),
+            ("input", "inner", "<sc_uint<32>>"),
+            ("input", "outer", "<sc_uint<32>>"),
+            ("output", "new_inner", "<sc_uint<32>>"),
+            ("output", "new_outer", "<sc_uint<32>>"),
         )
     )
     sc_cacc.fixed_width_float_output(9)
@@ -63,8 +63,8 @@ if __name__ == "__main__":
     )
     sc_sumsq.set_ports(
         (
-            ("input", "op1", "<float>", 12),
-            ("input", "op2", "<float>", 12),
+            ("input", "op1", "<float>", 8),
+            ("input", "op2", "<float>", 8),
             ("output", "data_out", "<float>", 12),
         )
     )

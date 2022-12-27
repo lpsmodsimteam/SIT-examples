@@ -5,6 +5,8 @@ monte_carlo::monte_carlo(SST::ComponentId_t id, SST::Params& params)
       // collect all the parameters from the project driver
       seed(params.find<uint16_t>("SEED", 0)),
       output(params.find<bool>("OUTPUT", true)) {
+    x_val_rdy = false;
+    y_val_rdy = false;
 
     x_rand32_link = new LinkWrapper(&m_keep_send, &m_keep_recv);
     x_rand32_link->din_link = configureLink("x_rand32_din");
@@ -90,11 +92,18 @@ bool monte_carlo::tick(SST::Cycle_t current_cycle) {
     y_rand32_link->send(_rst, _seed2, _seed_start, _rdy,
                         std::to_string(current_cycle % 2));
 
+    if (x_val_rdy && y_val_rdy) {
+        sum_sq_link->send(std::to_string(x_val_norm),
+                          std::to_string(y_val_norm));
+        x_val_rdy = false;
+        y_val_rdy = false;
+    }
+
     if (current_cycle > 39940) {
 
         m_output.verbose(CALL_INFO, 1, 0, "cycle: %ld x: %f\n", current_cycle,
-                         x);
-        m_output.verbose(CALL_INFO, 1, 0, "y: %f\n", y);
+                         x_val_norm);
+        m_output.verbose(CALL_INFO, 1, 0, "y: %f\n", y_val_norm);
     }
 
     if (current_cycle > 40000) {
@@ -133,7 +142,8 @@ void monte_carlo::y_rand32(SST::Event* ev) {
 void monte_carlo::div_x(SST::Event* ev) {
     auto* se = dynamic_cast<SST::Interfaces::StringEvent*>(ev);
     if (se && se->getString().length()) {
-        x = std::stof(se->getString());
+        x_val_norm = std::stof(se->getString());
+        x_val_rdy = true;
     }
 
     delete se;
@@ -142,10 +152,18 @@ void monte_carlo::div_x(SST::Event* ev) {
 void monte_carlo::div_y(SST::Event* ev) {
     auto* se = dynamic_cast<SST::Interfaces::StringEvent*>(ev);
     if (se && se->getString().length()) {
-        y = std::stof(se->getString());
+        y_val_norm = std::stof(se->getString());
+        y_val_rdy = true;
     }
 
     delete se;
 }
 
-void monte_carlo::sum_sq(SST::Event* ev) {}
+void monte_carlo::sum_sq(SST::Event* ev) {
+    auto* se = dynamic_cast<SST::Interfaces::StringEvent*>(ev);
+    if (se && se->getString().length()) {
+        std::cout << "BURGGGF " << se->getString() << '\n';
+    }
+
+    delete se;
+}

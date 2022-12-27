@@ -7,10 +7,10 @@ int sc_main(int, char *argv[]) {
     sc_report_handler::set_actions(SC_ID_NO_SC_START_ACTIVITY_, SC_DO_NOTHING);
     // ---------- SYSTEMC UUT INIT ---------- //
     sc_signal<float> dist;
-    sc_signal<float> inner;
-    sc_signal<float> outer;
-    sc_signal<float> new_inner;
-    sc_signal<float> new_outer;
+    sc_signal<sc_uint<32>> inner;
+    sc_signal<sc_uint<32>> outer;
+    sc_signal<sc_uint<32>> new_inner;
+    sc_signal<sc_uint<32>> new_outer;
 
     // Connect the DUT
     sc_cacc DUT("sc_cacc");
@@ -23,7 +23,7 @@ int sc_main(int, char *argv[]) {
 
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
     // Initialize signal handlers
-    SocketSignal m_signal_io(37, false);
+    SocketSignal m_signal_io(33, false);
     m_signal_io.set_addr(argv[1]);
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
 
@@ -44,8 +44,8 @@ int sc_main(int, char *argv[]) {
             break;
         }
         dist = std::stof(_data_in.substr(1, 12));
-        inner = std::stof(_data_in.substr(13, 12));
-        outer = std::stof(_data_in.substr(25, 12));
+        inner = std::stoi(_data_in.substr(13, 10));
+        outer = std::stoi(_data_in.substr(23, 10));
 
         // SENDING
         sc_start();
