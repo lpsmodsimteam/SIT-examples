@@ -46,7 +46,7 @@ int sc_main(int, char* argv[]) {
         // SENDING
         sc_start();
 
-        std::cout << op1 << "^2 + " << op2 << "^2 = " << data_out << '\n';
+        // std::cout << op1 << "^2 + " << op2 << "^2 = " << data_out << '\n';
 
         _data_out << std::fixed << std::setprecision(9) << data_out;
 

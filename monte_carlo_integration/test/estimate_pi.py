@@ -19,10 +19,14 @@ MAX_32 = 4294967295
 
 RADIUS = 0.5 * 2
 
-for num_iters in (10, 100, 1000, 10000, 100000, 1000000, 10000000):
+# for num_iters in (10, 100, 1000, 10000, 100000, 1000000, 10000000):
+for num_iters in [1000]:
 
     mt = mt19937()
     mt.seed(0)
+
+    mt2 = mt19937()
+    mt2.seed(0)
 
     x_coords = 0
     y_coords = 0
@@ -32,10 +36,10 @@ for num_iters in (10, 100, 1000, 10000, 100000, 1000000, 10000000):
 
     estimates = 0.0
 
-    for _ in range(num_iters):
+    for i in range(num_iters):
 
         x_coords = mt.int32b()
-        y_coords = mt.int32b()
+        y_coords = mt2.int32b()
         x_coords = x_coords / MAX_32
         y_coords = y_coords / MAX_32
         dist = x_coords * x_coords + y_coords * y_coords
@@ -46,5 +50,6 @@ for num_iters in (10, 100, 1000, 10000, 100000, 1000000, 10000000):
             square += 1
 
         estimates = 4 * (circle / (circle + square))
+        print(i + 1, f"{estimates:.6f}")
 
     print(f"{num_iters:10d}: {estimates:.6f}")

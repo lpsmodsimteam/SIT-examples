@@ -1,11 +1,11 @@
-#include <sst/sit/sit.hpp>
-
 #include <sst/core/component.h>
 #include <sst/core/interfaces/stringEvent.h>
 #include <sst/core/link.h>
 
+#include <sst/sit/sit.hpp>
+
 class mt19937 : public SST::Component {
-  private:
+   private:
     // Prepare the signal handler
     SocketSignal m_signal_io;
 
@@ -14,23 +14,25 @@ class mt19937 : public SST::Component {
     std::string m_clock, m_proc, m_ipc_port;
     SST::Link *m_din_link, *m_dout_link;
 
-  public:
+   public:
     mt19937(SST::ComponentId_t id, SST::Params& params)
-        : SST::Component(id), m_signal_io(12),
+        : SST::Component(id),
+          m_signal_io(12),
           m_clock(params.find<std::string>("clock", "")),
           m_proc(params.find<std::string>("proc", "")),
           m_ipc_port(params.find<std::string>("ipc_port", "")),
           m_din_link(configureLink(
               "mt19937_din",
-              new SST::Event::Handler<mt19937>(this, &mt19937::handle_event))),
+              new SST::Event::Handler<mt19937>(this, &mt19937::handle_event)
+          )),
           m_dout_link(configureLink("mt19937_dout")) {
 
-        m_output.init("blackbox-" + getName() + " -> ", 1, 0,
-                      SST::Output::STDOUT);
+        m_output.init("gen-" + getName() + " -> ", 1, 0, SST::Output::STDOUT);
         m_output.setVerboseLevel(params.find<bool>("OUTPUT", true));
 
-        registerClock(m_clock,
-                      new SST::Clock::Handler<mt19937>(this, &mt19937::tick));
+        registerClock(
+            m_clock, new SST::Clock::Handler<mt19937>(this, &mt19937::tick)
+        );
 
         if (!(m_din_link && m_dout_link)) {
             m_output.fatal(CALL_INFO, -1, "Failed to configure port\n");
@@ -54,8 +56,9 @@ class mt19937 : public SST::Component {
             }
             args[i] = nullptr;
 
-            m_output.verbose(CALL_INFO, 1, 0, "Forking process \"%s\"...\n",
-                             cmd.c_str());
+            m_output.verbose(
+                CALL_INFO, 1, 0, "Forking process \"%s\"...\n", cmd.c_str()
+            );
             execvp(args[0], args);
 
         } else {
@@ -63,9 +66,10 @@ class mt19937 : public SST::Component {
             m_signal_io.set_addr(m_ipc_port);
             m_signal_io.recv();
             if (child_pid == std::stoi(m_signal_io.get())) {
-                m_output.verbose(CALL_INFO, 1, 0,
-                                 "Process \"%s\" successfully synchronized\n",
-                                 m_proc.c_str());
+                m_output.verbose(
+                    CALL_INFO, 1, 0,
+                    "Process \"%s\" successfully synchronized\n", m_proc.c_str()
+                );
             }
         }
     }
@@ -103,14 +107,16 @@ class mt19937 : public SST::Component {
     }
 
     // Register the component
-    SST_ELI_REGISTER_COMPONENT(mt19937,       // class
-                               "monte_carlo", // element library
-                               "mt19937",     // component
-                               SST_ELI_ELEMENT_VERSION(1, 0, 0), "",
-                               COMPONENT_CATEGORY_UNCATEGORIZED)
+    SST_ELI_REGISTER_COMPONENT(
+        mt19937,        // class
+        "monte_carlo",  // element library
+        "mt19937",      // component
+        SST_ELI_ELEMENT_VERSION(1, 0, 0), "", COMPONENT_CATEGORY_UNCATEGORIZED
+    )
 
     // Port name, description, event type
     SST_ELI_DOCUMENT_PORTS(
         {"mt19937_din", "mt19937 data in", {"sst.Interfaces.StringEvent"}},
-        {"mt19937_dout", "mt19937 data out", {"sst.Interfaces.StringEvent"}})
+        {"mt19937_dout", "mt19937 data out", {"sst.Interfaces.StringEvent"}}
+    )
 };

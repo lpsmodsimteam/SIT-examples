@@ -71,18 +71,3 @@ if __name__ == "__main__":
     sc_cacc.fixed_width_float_output(9)
     sc_cacc.disable_runtime_warnings(["SC_ID_NO_SC_START_ACTIVITY_"])
     sc_cacc.generate_black_boxes()
-
-    #     mutation = PyRTL(
-    #         lib="monte_carlo",
-    #         module_name="mutation",
-    #     )
-    #     mutation.set_ports(
-    #         (
-    #             ("input", "chance", "3"),
-    #             ("input", "gene", "3"),
-    #             ("output", "out", "2"),
-    #         )
-    #     )
-    #     mutation.generate_bbox()
-
-    # elif sys.argv[-1] == "verilog":

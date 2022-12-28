@@ -17,21 +17,22 @@ class SigWidth {
         }
     }
 
+    static std::string align_signal_width(int width, float signal) {
+        std::ostringstream _data_out;
+        _data_out << std::fixed << std::setprecision(width) << signal;
+        return _data_out.str().substr(0, width);
+    }
+
     static void append_signal(const char chr, int width, std::string& signal) {
         int _len = signal.length();
         if (_len < width) {
             signal += std::string(width - _len, chr);
         }
     }
-
-    static std::string align_signal_width(int width, float signal) {
-        std::ostringstream _data_out;
-        _data_out << std::fixed << std::setprecision(width) << signal;
-        return _data_out.str().substr(0, width);
-    }
 };
 
 class LinkWrapper : public SST::Link {
+   private:
     bool *m_keep_send{}, *m_keep_recv{};
 
    public:

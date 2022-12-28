@@ -1,11 +1,11 @@
-#include <sst/sit/sit.hpp>
-
 #include <sst/core/component.h>
 #include <sst/core/interfaces/stringEvent.h>
 #include <sst/core/link.h>
 
+#include <sst/sit/sit.hpp>
+
 class sc_cacc : public SST::Component {
-  private:
+   private:
     // Prepare the signal handler
     SocketSignal m_signal_io;
 
@@ -14,23 +14,26 @@ class sc_cacc : public SST::Component {
     std::string m_clock, m_proc, m_ipc_port;
     SST::Link *m_din_link, *m_dout_link;
 
-  public:
+   public:
     // constructor for component
     sc_cacc(SST::ComponentId_t id, SST::Params& params)
-        : SST::Component(id), m_signal_io(20),
+        : SST::Component(id),
+          m_signal_io(20),
           m_clock(params.find<std::string>("clock", "")),
           m_proc(params.find<std::string>("proc", "")),
           m_ipc_port(params.find<std::string>("ipc_port", "")),
           m_din_link(configureLink(
               "sc_cacc_din",
-              new SST::Event::Handler<sc_cacc>(this, &sc_cacc::handle_event))),
+              new SST::Event::Handler<sc_cacc>(this, &sc_cacc::handle_event)
+          )),
           m_dout_link(configureLink("sc_cacc_dout")) {
 
         m_output.init("gen-" + getName() + " -> ", 1, 0, SST::Output::STDOUT);
         m_output.setVerboseLevel(params.find<bool>("OUTPUT", true));
 
-        registerClock(m_clock,
-                      new SST::Clock::Handler<sc_cacc>(this, &sc_cacc::tick));
+        registerClock(
+            m_clock, new SST::Clock::Handler<sc_cacc>(this, &sc_cacc::tick)
+        );
 
         if (!(m_din_link && m_dout_link)) {
             m_output.fatal(CALL_INFO, -1, "Failed to configure port\n");
@@ -44,8 +47,9 @@ class sc_cacc : public SST::Component {
         if (!child_pid) {
 
             char* args[] = {&m_proc[0u], &m_ipc_port[0u], nullptr};
-            m_output.verbose(CALL_INFO, 1, 0, "Forking process \"%s\"...\n",
-                             m_proc.c_str());
+            m_output.verbose(
+                CALL_INFO, 1, 0, "Forking process \"%s\"...\n", m_proc.c_str()
+            );
             execvp(args[0], args);
 
         } else {
@@ -53,9 +57,10 @@ class sc_cacc : public SST::Component {
             m_signal_io.set_addr(m_ipc_port);
             m_signal_io.recv();
             if (child_pid == std::stoi(m_signal_io.get())) {
-                m_output.verbose(CALL_INFO, 1, 0,
-                                 "Process \"%s\" successfully synchronized\n",
-                                 m_proc.c_str());
+                m_output.verbose(
+                    CALL_INFO, 1, 0,
+                    "Process \"%s\" successfully synchronized\n", m_proc.c_str()
+                );
             }
         }
     }
@@ -93,14 +98,16 @@ class sc_cacc : public SST::Component {
     }
 
     // Register the component
-    SST_ELI_REGISTER_COMPONENT(sc_cacc,       // class
-                               "monte_carlo", // element library
-                               "sc_cacc",     // component
-                               SST_ELI_ELEMENT_VERSION(1, 0, 0), "",
-                               COMPONENT_CATEGORY_UNCATEGORIZED)
+    SST_ELI_REGISTER_COMPONENT(
+        sc_cacc,        // class
+        "monte_carlo",  // element library
+        "sc_cacc",      // component
+        SST_ELI_ELEMENT_VERSION(1, 0, 0), "", COMPONENT_CATEGORY_UNCATEGORIZED
+    )
 
     // Port name, description, event type
     SST_ELI_DOCUMENT_PORTS(
         {"sc_cacc_din", "sc_cacc data in", {"sst.Interfaces.StringEvent"}},
-        {"sc_cacc_dout", "sc_cacc data out", {"sst.Interfaces.StringEvent"}})
+        {"sc_cacc_dout", "sc_cacc data out", {"sst.Interfaces.StringEvent"}}
+    )
 };

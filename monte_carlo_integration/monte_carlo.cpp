@@ -1,13 +1,12 @@
 #include "monte_carlo.hpp"
 
 monte_carlo::monte_carlo(SST::ComponentId_t id, SST::Params& params)
-    : SST::Component(id),
-      // collect all the parameters from the project driver
-      seed(params.find<uint16_t>("SEED", 0)),
-      output(params.find<bool>("OUTPUT", true)) {
-    x_val_rdy = false;
-    y_val_rdy = false;
-    dist_rdy = false;
+    : SST::Component(id) {
+
+    seed1 = params.find<std::string>("SEED1", "0000000000");
+    seed2 = params.find<std::string>("SEED2", "0000000000");
+    iterations = params.find<uint64_t>("ITER", 100);
+    SIMTIME = MT_CYCLES + iterations * 2 + 4;
 
     x_rand32_link = new LinkWrapper(&m_keep_send, &m_keep_recv);
     x_rand32_link->din_link = configureLink("x_rand32_din");
@@ -51,12 +50,24 @@ monte_carlo::monte_carlo(SST::ComponentId_t id, SST::Params& params)
         new SST::Event::Handler<monte_carlo>(this, &monte_carlo::cacc)
     );
 
+    div_areas_link = new LinkWrapper(&m_keep_send, &m_keep_recv);
+    div_areas_link->din_link = configureLink("div_areas_din");
+    div_areas_link->dout_link = configureLink(
+        "div_areas_dout",
+        new SST::Event::Handler<monte_carlo>(this, &monte_carlo::div_areas)
+    );
+
+    x_val_rdy = false;
+    y_val_rdy = false;
+    dist_rdy = false;
+    clock_high = false;
+
     m_output.init(
         "\033[93mmonte_carlo-" + getName() + "\033[0m -> ", 1, 0,
         SST::Output::STDOUT
     );
 
-    m_output.setVerboseLevel(output);
+    // m_output.setVerboseLevel(output);
 
     // Just register a plain clock for this simple example
     registerClock(
@@ -79,35 +90,33 @@ void monte_carlo::finish() {
 
 bool monte_carlo::tick(SST::Cycle_t current_cycle) {
 
-    m_keep_send = current_cycle < 40000;
-    m_keep_recv = current_cycle < 40000 - 1;
-    mt19937_rdy = current_cycle > 39940;
+    clock_high = current_cycle % 2;
+    m_keep_send = current_cycle < SIMTIME;
+    m_keep_recv = current_cycle < SIMTIME - 1;
+    mt19937_rdy = current_cycle > MT_CYCLES;
 
-    std::string _seed = "0000000000";
-    std::string _seed2 = "0000000101";
-
-    std::string _rst = "0";
-    std::string _seed_start = "0";
-    std::string _rdy = "0";
+    std::string mt_rst = "0";
+    std::string mt_seed_start = "0";
+    std::string mt_rdy = "0";
 
     if (current_cycle == 1) {
-        _rst = "1";
+        mt_rst = "1";
     }
 
     if (current_cycle == 3) {
-        _seed_start = "1";
+        mt_seed_start = "1";
     }
 
     if (current_cycle > 4) {
-        _rdy = "1";
+        mt_rdy = "1";
     }
 
     x_rand32_link->send(
-        _rst, _seed, _seed_start, _rdy, std::to_string(current_cycle % 2)
+        mt_rst, seed1, mt_seed_start, mt_rdy, std::to_string(clock_high)
     );
 
     y_rand32_link->send(
-        _rst, _seed2, _seed_start, _rdy, std::to_string(current_cycle % 2)
+        mt_rst, seed2, mt_seed_start, mt_rdy, std::to_string(clock_high)
     );
 
     if (x_val_rdy && y_val_rdy) {
@@ -118,27 +127,28 @@ bool monte_carlo::tick(SST::Cycle_t current_cycle) {
         y_val_rdy = false;
     }
 
-    if (current_cycle > 39940) {
+    if (current_cycle > MT_CYCLES && clock_high && estimate) {
 
         m_output.verbose(
-            CALL_INFO, 1, 0, "cycle: %ld x: %f\n", current_cycle, x_val_norm
+            CALL_INFO, 1, 0, "cycle: %ld iter: %d π: %f\n", current_cycle,
+            ++cur, estimate
         );
-        m_output.verbose(CALL_INFO, 1, 0, "y: %f\n", y_val_norm);
     }
 
-    if (current_cycle > 40000) {
+    if (current_cycle > SIMTIME) {
         primaryComponentOKToEndSim();
     }
 
-    return current_cycle > 40000;
+    return current_cycle > SIMTIME;
 }
 
 void monte_carlo::x_rand32(SST::Event* ev) {
 
     auto* se = dynamic_cast<SST::Interfaces::StringEvent*>(ev);
-    if (mt19937_rdy && se) {
+    if (mt19937_rdy && m_keep_recv && se) {
         std::string temp_se = se->getString();
         temp_se = temp_se.substr(0, temp_se.length() - 2);
+        x_mt19937_valid = temp_se[temp_se.length() - 2] != '0';
         SigWidth::align_signal_width(10, temp_se);
         div_x_link->send(temp_se, "4294967295");
     }
@@ -149,9 +159,10 @@ void monte_carlo::x_rand32(SST::Event* ev) {
 void monte_carlo::y_rand32(SST::Event* ev) {
 
     auto* se = dynamic_cast<SST::Interfaces::StringEvent*>(ev);
-    if (mt19937_rdy && se) {
+    if (mt19937_rdy && m_keep_recv && se) {
         std::string temp_se = se->getString();
         temp_se = temp_se.substr(0, temp_se.length() - 2);
+        y_mt19937_valid = temp_se[temp_se.length() - 2] != '0';
         SigWidth::align_signal_width(10, temp_se);
         div_y_link->send(temp_se, "4294967295");
     }
@@ -162,7 +173,7 @@ void monte_carlo::y_rand32(SST::Event* ev) {
 void monte_carlo::div_x(SST::Event* ev) {
 
     auto* se = dynamic_cast<SST::Interfaces::StringEvent*>(ev);
-    if (se && se->getString().length()) {
+    if (m_keep_recv && se && se->getString().length()) {
         x_val_norm = std::stof(se->getString());
         x_val_rdy = true;
     }
@@ -171,8 +182,9 @@ void monte_carlo::div_x(SST::Event* ev) {
 }
 
 void monte_carlo::div_y(SST::Event* ev) {
+
     auto* se = dynamic_cast<SST::Interfaces::StringEvent*>(ev);
-    if (se && se->getString().length()) {
+    if (m_keep_recv && se && se->getString().length()) {
         y_val_norm = std::stof(se->getString());
         y_val_rdy = true;
     }
@@ -182,7 +194,7 @@ void monte_carlo::div_y(SST::Event* ev) {
 
 void monte_carlo::sum_sq(SST::Event* ev) {
     auto* se = dynamic_cast<SST::Interfaces::StringEvent*>(ev);
-    if (se && se->getString().length()) {
+    if (m_keep_recv && se && se->getString().length()) {
         std::string inner_str = std::to_string(inner);
         SigWidth::align_signal_width(10, inner_str);
         std::string outer_str = std::to_string(outer);
@@ -195,12 +207,27 @@ void monte_carlo::sum_sq(SST::Event* ev) {
 
 void monte_carlo::cacc(SST::Event* ev) {
     auto* se = dynamic_cast<SST::Interfaces::StringEvent*>(ev);
-    if (se && se->getString().length()) {
-        std::cout << "coming back here " << se->getString() << '\n';
+    if (m_keep_recv && se && clock_high) {
+        // std::cout << "coming back here " << se->getString() << '\n';
         std::string temp_se = se->getString();
         inner = std::stol(temp_se.substr(0, 10));
         outer = std::stol(temp_se.substr(10, 10));
-        std::cout << "inner: " << inner << " outer: " << outer << '\n';
+        // std::cout << "inner: " << inner << " outer: " << outer << '\n';
+
+        std::string denom = std::to_string(inner + outer);
+        SigWidth::align_signal_width(10, denom);
+        div_areas_link->send(temp_se.substr(0, 10), denom);
+    }
+
+    delete se;
+}
+
+void monte_carlo::div_areas(SST::Event* ev) {
+
+    auto* se = dynamic_cast<SST::Interfaces::StringEvent*>(ev);
+    if (m_keep_recv && se && se->getString().length()) {
+        // std::cout << "divided? " << se->getString() << '\n';
+        estimate = 4 * std::stof(se->getString());
     }
 
     delete se;

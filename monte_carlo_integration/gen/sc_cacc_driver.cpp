@@ -50,17 +50,12 @@ int sc_main(int, char* argv[]) {
             break;
         }
 
-        std::cout << "got data: " << _data_in << '\n';
-
         dist = std::stof(_data_in.substr(1, 11));
         inner = std::stol(_data_in.substr(12, 10));
         outer = std::stol(_data_in.substr(22, 10));
 
         // SENDING
         sc_start();
-
-        std::cout << dist << " old: (i:" << inner << ",o:" << outer
-                  << ") new: (i:" << new_inner << ",o:" << new_outer << ")\n";
 
         std::string new_inner_str = std::to_string(new_inner.read());
         align_signal_width(10, new_inner_str);
