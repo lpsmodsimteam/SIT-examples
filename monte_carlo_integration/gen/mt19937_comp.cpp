@@ -26,7 +26,6 @@ class mt19937 : public SST::Component {
               new SST::Event::Handler<mt19937>(this, &mt19937::handle_event)
           )),
           m_dout_link(configureLink("mt19937_dout")) {
-
         m_output.init("gen-" + getName() + " -> ", 1, 0, SST::Output::STDOUT);
         m_output.setVerboseLevel(params.find<bool>("OUTPUT", true));
 
@@ -40,11 +39,9 @@ class mt19937 : public SST::Component {
     }
 
     void setup() {
-
         int child_pid = fork();
 
         if (!child_pid) {
-
             std::string cmd = m_proc + m_ipc_port;
 
             char* args[8];
@@ -62,13 +59,15 @@ class mt19937 : public SST::Component {
             execvp(args[0], args);
 
         } else {
-
             m_signal_io.set_addr(m_ipc_port);
             m_signal_io.recv();
             if (child_pid == std::stoi(m_signal_io.get())) {
                 m_output.verbose(
-                    CALL_INFO, 1, 0,
-                    "Process \"%s\" successfully synchronized\n", m_proc.c_str()
+                    CALL_INFO,
+                    1,
+                    0,
+                    "Process \"%s\" successfully synchronized\n",
+                    m_proc.c_str()
                 );
             }
         }
@@ -79,11 +78,9 @@ class mt19937 : public SST::Component {
     };
 
     void handle_event(SST::Event* ev) {
-
         auto* se = dynamic_cast<SST::Interfaces::StringEvent*>(ev);
 
         if (se) {
-
             std::string _data_in = se->getString();
             bool keep_send = _data_in[0] != '0';
             bool keep_recv = _data_in[1] != '0';
@@ -111,7 +108,9 @@ class mt19937 : public SST::Component {
         mt19937,        // class
         "monte_carlo",  // element library
         "mt19937",      // component
-        SST_ELI_ELEMENT_VERSION(1, 0, 0), "", COMPONENT_CATEGORY_UNCATEGORIZED
+        SST_ELI_ELEMENT_VERSION(1, 0, 0),
+        "",
+        COMPONENT_CATEGORY_UNCATEGORIZED
     )
 
     // Port name, description, event type

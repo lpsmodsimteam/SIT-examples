@@ -46,8 +46,6 @@ int sc_main(int, char* argv[]) {
         // SENDING
         sc_start();
 
-        // std::cout << op1 << "^2 + " << op2 << "^2 = " << data_out << '\n';
-
         _data_out << std::fixed << std::setprecision(9) << data_out;
 
         m_signal_io.set(_data_out.str());

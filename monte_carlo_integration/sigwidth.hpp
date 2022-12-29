@@ -33,10 +33,10 @@ class SigWidth {
 
 class LinkWrapper : public SST::Link {
    private:
-    bool *m_keep_send{}, *m_keep_recv{};
+    bool *m_keep_send, *m_keep_recv;
+    SST::Link *din_link, *dout_link;
 
    public:
-    SST::Link *din_link, *dout_link;
     LinkWrapper(bool* keep_send, bool* keep_recv) {
         m_keep_send = keep_send;
         m_keep_recv = keep_recv;
@@ -44,6 +44,14 @@ class LinkWrapper : public SST::Link {
 
     inline std::string const& to_string(std::string const& s) {
         return s;
+    }
+
+    void set_din_link(SST::Link* link) {
+        din_link = link;
+    }
+
+    void set_dout_link(SST::Link* link) {
+        dout_link = link;
     }
 
     template <typename... Args>

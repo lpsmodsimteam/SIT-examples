@@ -58,8 +58,11 @@ class sc_cacc : public SST::Component {
             m_signal_io.recv();
             if (child_pid == std::stoi(m_signal_io.get())) {
                 m_output.verbose(
-                    CALL_INFO, 1, 0,
-                    "Process \"%s\" successfully synchronized\n", m_proc.c_str()
+                    CALL_INFO,
+                    1,
+                    0,
+                    "Process \"%s\" successfully synchronized\n",
+                    m_proc.c_str()
                 );
             }
         }
@@ -102,7 +105,9 @@ class sc_cacc : public SST::Component {
         sc_cacc,        // class
         "monte_carlo",  // element library
         "sc_cacc",      // component
-        SST_ELI_ELEMENT_VERSION(1, 0, 0), "", COMPONENT_CATEGORY_UNCATEGORIZED
+        SST_ELI_ELEMENT_VERSION(1, 0, 0),
+        "",
+        COMPONENT_CATEGORY_UNCATEGORIZED
     )
 
     // Port name, description, event type

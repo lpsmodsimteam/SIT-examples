@@ -11,6 +11,7 @@ void align_signal_width(int width, std::string& signal) {
 }
 
 int sc_main(int, char* argv[]) {
+
     sc_report_handler::set_actions(SC_ID_NO_SC_START_ACTIVITY_, SC_DO_NOTHING);
     // ---------- SYSTEMC UUT INIT ---------- //
     sc_signal<float> dist;
@@ -42,6 +43,7 @@ int sc_main(int, char* argv[]) {
     std::ostringstream _data_out;
 
     while (true) {
+
         // RECEIVING
         m_signal_io.recv();
         std::string _data_in = m_signal_io.get();
@@ -49,10 +51,9 @@ int sc_main(int, char* argv[]) {
         if (_data_in[0] == '0') {
             break;
         }
-
-        dist = std::stof(_data_in.substr(1, 11));
-        inner = std::stol(_data_in.substr(12, 10));
-        outer = std::stol(_data_in.substr(22, 10));
+        dist = std::stof(_data_in.substr(1, 12));
+        inner = std::stol(_data_in.substr(13, 10));
+        outer = std::stol(_data_in.substr(23, 10));
 
         // SENDING
         sc_start();
@@ -61,9 +62,11 @@ int sc_main(int, char* argv[]) {
         align_signal_width(10, new_inner_str);
         std::string new_outer_str = std::to_string(new_outer.read());
         align_signal_width(10, new_outer_str);
+
         // _data_out << std::fixed << std::setprecision(9) << new_inner;
         // _data_out << std::fixed << std::setprecision(9) << new_outer;
 
+        // m_signal_io.set(_data_out.str());
         m_signal_io.set(new_inner_str + new_outer_str);
         m_signal_io.send();
 
