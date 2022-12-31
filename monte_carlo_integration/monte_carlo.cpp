@@ -6,7 +6,8 @@ monte_carlo::monte_carlo(SST::ComponentId_t id, SST::Params& params)
     seed1 = params.find<std::string>("SEED1", "0000000000");
     seed2 = params.find<std::string>("SEED2", "0000000000");
     iterations = params.find<uint64_t>("ITER", 100);
-    SIMTIME = MT_CYCLES + iterations * 2 + 4;
+    SIMTIME = MT_CYCLES + iterations * 2 + 3;
+    LOOPEND = SIMTIME;
 
     x_rand32_link = new LinkWrapper(&m_keep_send, &m_keep_recv);
     x_rand32_link->set_din_link(configureLink("x_rand32_din"));
@@ -91,6 +92,7 @@ void monte_carlo::finish() {
 
 bool monte_carlo::tick(SST::Cycle_t current_cycle) {
 
+    m_cycle = current_cycle;
     clock_high = current_cycle % 2;
     m_keep_send = current_cycle < SIMTIME;
     m_keep_recv = current_cycle < SIMTIME - 1;
@@ -134,18 +136,18 @@ bool monte_carlo::tick(SST::Cycle_t current_cycle) {
             CALL_INFO,
             1,
             0,
-            "cycle: %ld iter: %d π: %f\n",
+            "cycle: %ld iter: %3d π: %.6f\n",
             current_cycle,
             ++cur,
             estimate
         );
     }
 
-    if (current_cycle > SIMTIME) {
+    if (current_cycle == SIMTIME) {
         primaryComponentOKToEndSim();
     }
 
-    return current_cycle > SIMTIME;
+    return current_cycle == SIMTIME;
 }
 
 void monte_carlo::x_rand32(SST::Event* ev) {

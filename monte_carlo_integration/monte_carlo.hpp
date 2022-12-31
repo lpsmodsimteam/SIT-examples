@@ -76,7 +76,8 @@ class monte_carlo : public SST::Component {
     bool m_keep_send{}, m_keep_recv{};
     bool mt19937_rdy{};
     unsigned int cur{};
-    unsigned int SIMTIME;
+    unsigned int SIMTIME, LOOPEND{};
+    unsigned int m_cycle{};
 
     bool x_val_rdy{}, y_val_rdy{};
     float x_val_norm{}, y_val_norm{};
