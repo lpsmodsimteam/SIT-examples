@@ -20,13 +20,13 @@ MAX_32 = 4294967295
 RADIUS = 0.5 * 2
 
 # for num_iters in (10, 100, 1000, 10000, 100000, 1000000, 10000000):
-for num_iters in [1000]:
+for num_iters in [100]:
 
     mt = mt19937()
     mt.seed(0)
 
     mt2 = mt19937()
-    mt2.seed(0)
+    mt2.seed(1)
 
     x_coords = 0
     y_coords = 0

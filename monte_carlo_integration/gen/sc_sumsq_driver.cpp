@@ -1,7 +1,7 @@
 #include <iomanip>
 #include <sst/sit/sit.hpp>
 
-#include "/home/sabbir/Desktop/SIT-examples/monte_carlo_integration/systemc/sc_sumsq.hpp"
+#include "/home/sabbir/SIT-Examples/monte_carlo_integration/systemc/sc_sumsq.hpp"
 
 int sc_main(int, char* argv[]) {
 

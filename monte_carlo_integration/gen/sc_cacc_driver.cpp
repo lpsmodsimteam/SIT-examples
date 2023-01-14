@@ -1,7 +1,7 @@
 #include <iomanip>
 #include <sst/sit/sit.hpp>
 
-#include "/home/sabbir/Desktop/SIT-examples/monte_carlo_integration/systemc/sc_cacc.hpp"
+#include "/home/sabbir/SIT-Examples/monte_carlo_integration/systemc/sc_cacc.hpp"
 
 void align_signal_width(int width, std::string& signal) {
     int _len = signal.length();

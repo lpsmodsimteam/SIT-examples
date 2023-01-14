@@ -72,6 +72,12 @@ class sc_div : public SST::Component {
         return false;
     };
 
+    void finish() {
+        m_output.verbose(
+            CALL_INFO, 1, 0, "Destroying %s...\n", getName().c_str()
+        );
+    }
+
     void handle_event(SST::Event* ev) {
 
         auto* se = dynamic_cast<SST::Interfaces::StringEvent*>(ev);
