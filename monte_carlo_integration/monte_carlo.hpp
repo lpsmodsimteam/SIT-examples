@@ -77,12 +77,15 @@ class monte_carlo : public SST::Component {
     bool m_keep_send{}, m_keep_recv{}, m_keep_send1{}, m_keep_recv1{};
     bool mt19937_rdy{};
     unsigned int cur{};
-    unsigned int SIMTIME, LOOPEND{};
     unsigned int m_cycle{};
 
+    unsigned int SIMTIME, LOOPEND{};
+
+    // port register and flag variables
     bool x_val_rdy{}, y_val_rdy{};
     float x_val_norm{}, y_val_norm{};
     int inner{}, outer{};
+    std::string inner_str, outer_str;
     float estimate{};
 };
 

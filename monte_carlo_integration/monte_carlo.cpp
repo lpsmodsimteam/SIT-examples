@@ -31,6 +31,7 @@ monte_carlo::monte_carlo(SST::ComponentId_t id, SST::Params& params)
         "div_x_dout",
         new SST::Event::Handler<monte_carlo>(this, &monte_carlo::div_x)
     ));
+    div_x_link->set_buffer_lengths(10, 10);
 
     div_y_link = new LinkWrapper(&m_keep_send, &m_keep_recv);
     div_y_link->set_din_link(configureLink("div_y_din"));
@@ -38,6 +39,7 @@ monte_carlo::monte_carlo(SST::ComponentId_t id, SST::Params& params)
         "div_y_dout",
         new SST::Event::Handler<monte_carlo>(this, &monte_carlo::div_y)
     ));
+    div_y_link->set_buffer_lengths(10, 10);
 
     sum_sq_link = new LinkWrapper(&m_keep_send, &m_keep_recv);
     sum_sq_link->set_din_link(configureLink("sum_sq_din"));
@@ -52,6 +54,7 @@ monte_carlo::monte_carlo(SST::ComponentId_t id, SST::Params& params)
         "cacc_dout",
         new SST::Event::Handler<monte_carlo>(this, &monte_carlo::cacc)
     ));
+    cacc_link->set_buffer_lengths(12, 10, 10);
 
     div_areas_link = new LinkWrapper(&m_keep_send, &m_keep_recv);
     div_areas_link->set_din_link(configureLink("div_areas_din"));
@@ -59,6 +62,7 @@ monte_carlo::monte_carlo(SST::ComponentId_t id, SST::Params& params)
         "div_areas_dout",
         new SST::Event::Handler<monte_carlo>(this, &monte_carlo::div_areas)
     ));
+    div_areas_link->set_buffer_lengths(10, 10);
 
     x_val_rdy = false;
     y_val_rdy = false;
@@ -96,11 +100,8 @@ bool monte_carlo::tick(SST::Cycle_t current_cycle) {
 
     m_cycle = current_cycle;
     clock_high = current_cycle % 2;
-    m_keep_send = current_cycle < (SIMTIME - 2);
-    m_keep_recv = current_cycle < (SIMTIME - 3);
-
-    // m_keep_send = current_cycle < (SIMTIME - 2);
-    // m_keep_recv = current_cycle < (SIMTIME - 3);
+    m_keep_send = current_cycle < (SIMTIME - 0);
+    m_keep_recv = current_cycle < (SIMTIME - 1);
 
     mt19937_rdy = current_cycle > MT_CYCLES;
 
@@ -152,9 +153,9 @@ bool monte_carlo::tick(SST::Cycle_t current_cycle) {
         );
     }
 
-    if (current_cycle == SIMTIME) {
+    if (current_cycle > SIMTIME) {
         primaryComponentOKToEndSim();
     }
 
-    return current_cycle == SIMTIME;
+    return current_cycle > SIMTIME;
 }
