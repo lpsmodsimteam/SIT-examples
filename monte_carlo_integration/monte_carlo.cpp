@@ -6,7 +6,7 @@ monte_carlo::monte_carlo(SST::ComponentId_t id, SST::Params& params)
     : SST::Component(id) {
 
     seed1 = params.find<std::string>("SEED1", "0000000000");
-    seed2 = params.find<std::string>("SEED2", "0000000000");
+    seed2 = params.find<std::string>("SEED2", "0000000001");
     iterations = params.find<uint64_t>("ITER", 100);
     SIMTIME = MT_CYCLES + iterations * 2 + 3;
     LOOPEND = SIMTIME;

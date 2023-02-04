@@ -5,7 +5,7 @@
 #include <sst/core/interfaces/stringEvent.h>
 #include <sst/core/link.h>
 
-#include "sigwidth.hpp"
+#include <sst/sit/linkwrap.hpp>
 
 const unsigned int MT_ITERS = 624;
 const unsigned int MT_BITS = 32;
@@ -74,7 +74,7 @@ class monte_carlo : public SST::Component {
         *sum_sq_link, *cacc_link, *div_areas_link;
 
     bool clock_high;
-    bool m_keep_send{}, m_keep_recv{}, m_keep_send1{}, m_keep_recv1{};
+    bool m_keep_send{}, m_keep_recv{};
     bool mt19937_rdy{};
     unsigned int cur{};
     unsigned int m_cycle{};
