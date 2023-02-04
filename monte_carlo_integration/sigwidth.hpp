@@ -7,37 +7,32 @@
 
 #include <iomanip>
 #include <sstream>
-#include <tuple>
-#include <utility>
-
-class SigWidth {
-   public:
-    static void align_buffer_width(int width, std::string& buffer) {
-        int _len = buffer.length();
-        if (_len < width) {
-            buffer = std::string(width - _len, '0') + buffer;
-        }
-    }
-
-    static std::string align_buffer_width(int width, float buffer) {
-        std::ostringstream _data_out;
-        _data_out << std::fixed << std::setprecision(width) << buffer;
-        return _data_out.str().substr(0, width);
-    }
-
-    static void append_buffer(const char chr, int width, std::string& buffer) {
-        int _len = buffer.length();
-        if (_len < width) {
-            buffer += std::string(width - _len, chr);
-        }
-    }
-};
 
 class LinkWrapper : public SST::Link {
    private:
     bool *m_keep_send, *m_keep_recv;
     SST::Link *din_link, *dout_link;
     std::vector<int> buffer_lengths;
+
+    void align_buffer_width(int width, std::string& buffer) {
+        int _len = buffer.length();
+        if (_len < width) {
+            buffer = std::string(width - _len, '0') + buffer;
+        }
+    }
+
+    std::string align_buffer_width(int width, float buffer) {
+        std::ostringstream _data_out;
+        _data_out << std::fixed << std::setprecision(width) << buffer;
+        return _data_out.str().substr(0, width);
+    }
+
+    void append_buffer(const char chr, int width, std::string& buffer) {
+        int _len = buffer.length();
+        if (_len < width) {
+            buffer += std::string(width - _len, chr);
+        }
+    }
 
    public:
     LinkWrapper(bool* keep_send, bool* keep_recv) {
@@ -50,7 +45,7 @@ class LinkWrapper : public SST::Link {
     }
 
     template <typename... Args>
-    void set_buffer_lengths(Args const&... args) {
+    void set_buffer_lengths(const Args&... args) {
         buffer_lengths = {args...};
     }
 
@@ -72,7 +67,7 @@ class LinkWrapper : public SST::Link {
             int i = 0;
             for (const auto& p : {args...}) {
                 std::string temp = p;
-                SigWidth::align_buffer_width(buffer_lengths[i++], temp);
+                align_buffer_width(buffer_lengths[i++], temp);
                 result += temp;
             }
 
