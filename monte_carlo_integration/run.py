@@ -11,12 +11,7 @@ LINK_DELAY = "1ps"
 
 monte_carlo_main = sst.Component("main", "monte_carlo.monte_carlo")
 monte_carlo_main.addParams(
-    {
-        "CLOCK": CLOCK,
-        "SEED1": "0000000000",
-        "SEED2": "0000000001",
-        "ITER": 10000,
-    }
+    {"CLOCK": CLOCK, "SEED1": "0000000000", "SEED2": "0000000001", "ITER": 100}
 )
 
 

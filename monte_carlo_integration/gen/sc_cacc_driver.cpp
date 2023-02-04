@@ -1,14 +1,8 @@
 #include <iomanip>
+#include <sst/sit/bufwidth.hpp>
 #include <sst/sit/sit.hpp>
 
 #include "/home/sabbir/SIT-Examples/monte_carlo_integration/systemc/sc_cacc.hpp"
-
-void align_signal_width(int width, std::string& signal) {
-    int _len = signal.length();
-    if (_len < width) {
-        signal = std::string(width - _len, '0') + signal;
-    }
-}
 
 int sc_main(int, char* argv[]) {
 
@@ -59,9 +53,9 @@ int sc_main(int, char* argv[]) {
         sc_start();
 
         std::string new_inner_str = std::to_string(new_inner.read());
-        align_signal_width(10, new_inner_str);
+        align_buffer_width(new_inner_str, 10);
         std::string new_outer_str = std::to_string(new_outer.read());
-        align_signal_width(10, new_outer_str);
+        align_buffer_width(new_outer_str, 10);
 
         // _data_out << std::fixed << std::setprecision(9) << new_inner;
         // _data_out << std::fixed << std::setprecision(9) << new_outer;
