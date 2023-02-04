@@ -19,8 +19,7 @@ MAX_32 = 4294967295
 
 RADIUS = 0.5 * 2
 
-# for num_iters in (10, 100, 1000, 10000, 100000, 1000000, 10000000):
-for num_iters in [100]:
+for num_iters in (10, 100, 1000, 10000, 100000, 1000000, 10000000):
 
     mt = mt19937()
     mt.seed(0)
@@ -50,6 +49,5 @@ for num_iters in [100]:
             square += 1
 
         estimates = 4 * (circle / (circle + square))
-        print(i + 1, f"{estimates:.6f}")
 
     print(f"{num_iters:10d}: {estimates:.6f}")

@@ -20,7 +20,7 @@ int sc_main(int, char* argv[]) {
 
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
     // Initialize signal handlers
-    SocketSignal m_signal_io(17, false);
+    SITSocketBuffer m_signal_io(17, false);
     m_signal_io.set_addr(argv[1]);
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
 

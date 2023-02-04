@@ -7,7 +7,7 @@
 class sc_sumsq : public SST::Component {
    private:
     // Prepare the signal handler
-    SocketSignal m_signal_io;
+    SITSocketBuffer m_signal_io;
 
     // SST parameters
     SST::Output m_output;
