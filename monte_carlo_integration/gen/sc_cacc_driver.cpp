@@ -35,6 +35,7 @@ int sc_main(int, char* argv[]) {
     // ---------- INITIAL HANDSHAKE ---------- //
 
     std::ostringstream _data_out;
+    std::string _data_out_str;
 
     while (true) {
 
@@ -52,16 +53,14 @@ int sc_main(int, char* argv[]) {
         // SENDING
         sc_start();
 
-        std::string new_inner_str = std::to_string(new_inner.read());
-        align_buffer_width(new_inner_str, 10);
-        std::string new_outer_str = std::to_string(new_outer.read());
-        align_buffer_width(new_outer_str, 10);
+        _data_out_str =
+            align_buffer_width(std::to_string(new_inner.read()), 10);
+        _data_out << _data_out_str;
+        _data_out_str =
+            align_buffer_width(std::to_string(new_outer.read()), 10);
+        _data_out << _data_out_str;
 
-        // _data_out << std::fixed << std::setprecision(9) << new_inner;
-        // _data_out << std::fixed << std::setprecision(9) << new_outer;
-
-        // m_signal_io.set(_data_out.str());
-        m_signal_io.set(new_inner_str + new_outer_str);
+        m_signal_io.set(_data_out.str());
         m_signal_io.send();
 
         _data_out.str(std::string());
