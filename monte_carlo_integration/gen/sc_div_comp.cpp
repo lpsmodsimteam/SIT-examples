@@ -7,7 +7,7 @@
 class sc_div : public SST::Component {
    private:
     // Prepare the signal handler
-    SITSocketBuffer m_signal_io;
+    SITSocketBuffer sit_buf;
 
     // SST parameters
     SST::Output m_output;
@@ -18,7 +18,7 @@ class sc_div : public SST::Component {
     // constructor for component
     sc_div(SST::ComponentId_t id, SST::Params& params)
         : SST::Component(id),
-          m_signal_io(12),
+          sit_buf(12),
           m_clock(params.find<std::string>("clock", "")),
           m_proc(params.find<std::string>("proc", "")),
           m_ipc_port(params.find<std::string>("ipc_port", "")),
@@ -38,6 +38,7 @@ class sc_div : public SST::Component {
         if (!(m_din_link && m_dout_link)) {
             m_output.fatal(CALL_INFO, -1, "Failed to configure port\n");
         }
+
     }
 
     void setup() {
@@ -54,9 +55,9 @@ class sc_div : public SST::Component {
 
         } else {
 
-            m_signal_io.set_addr(m_ipc_port);
-            m_signal_io.recv();
-            if (child_pid == std::stoi(m_signal_io.get())) {
+            sit_buf.set_addr(m_ipc_port);
+            sit_buf.recv();
+            if (child_pid == std::stoi(sit_buf.get())) {
                 m_output.verbose(
                     CALL_INFO,
                     1,
@@ -65,12 +66,14 @@ class sc_div : public SST::Component {
                     m_proc.c_str()
                 );
             }
+
         }
+
     }
 
     bool tick(SST::Cycle_t) {
         return false;
-    };
+    }
 
     void finish() {
         m_output.verbose(
@@ -83,34 +86,35 @@ class sc_div : public SST::Component {
         auto* se = dynamic_cast<SST::Interfaces::StringEvent*>(ev);
 
         if (se) {
-
             std::string _data_in = se->getString();
             bool keep_send = _data_in[0] != '0';
             bool keep_recv = _data_in[1] != '0';
             _data_in = 'X' + _data_in.substr(2);
 
             // inputs from parent SST model, outputs to SystemC child process
-            m_signal_io.set(_data_in);
+            sit_buf.set(_data_in);
 
             if (keep_send) {
-                m_signal_io.set_state(keep_recv);
-                m_signal_io.send();
+                sit_buf.set_state(keep_recv);
+                sit_buf.send();
             }
             if (keep_recv) {
-                m_signal_io.recv();
+                sit_buf.recv();
             }
 
             // inputs to parent SST model, outputs from SystemC child process
-            std::string _data_out = m_signal_io.get();
+            std::string _data_out = sit_buf.get();
             m_dout_link->send(new SST::Interfaces::StringEvent(_data_out));
+
         }
+
     }
 
     // Register the component
     SST_ELI_REGISTER_COMPONENT(
-        sc_div,         // class
-        "monte_carlo",  // element library
-        "sc_div",       // component
+        sc_div, // class
+        "monte_carlo", // element library
+        "sc_div", // component
         SST_ELI_ELEMENT_VERSION(1, 0, 0),
         "",
         COMPONENT_CATEGORY_UNCATEGORIZED

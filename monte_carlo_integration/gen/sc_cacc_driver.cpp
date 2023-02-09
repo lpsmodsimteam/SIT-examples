@@ -1,4 +1,3 @@
-#include <iomanip>
 #include <sst/sit/bufwidth.hpp>
 #include <sst/sit/sit.hpp>
 
@@ -25,13 +24,13 @@ int sc_main(int, char* argv[]) {
 
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
     // Initialize signal handlers
-    SITSocketBuffer m_signal_io(33, false);
-    m_signal_io.set_addr(argv[1]);
+    SITSocketBuffer sit_buf(33, false);
+    sit_buf.set_addr(argv[1]);
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
 
     // ---------- INITIAL HANDSHAKE ---------- //
-    m_signal_io.set(std::to_string(getpid()));
-    m_signal_io.send();
+    sit_buf.set(std::to_string(getpid()));
+    sit_buf.send();
     // ---------- INITIAL HANDSHAKE ---------- //
 
     std::ostringstream _data_out;
@@ -40,8 +39,8 @@ int sc_main(int, char* argv[]) {
     while (true) {
 
         // RECEIVING
-        m_signal_io.recv();
-        std::string _data_in = m_signal_io.get();
+        sit_buf.recv();
+        std::string _data_in = sit_buf.get();
 
         if (_data_in[0] == '0') {
             break;
@@ -60,8 +59,8 @@ int sc_main(int, char* argv[]) {
             align_buffer_width(std::to_string(new_outer.read()), 10);
         _data_out << _data_out_str;
 
-        m_signal_io.set(_data_out.str());
-        m_signal_io.send();
+        sit_buf.set(_data_out.str());
+        sit_buf.send();
 
         _data_out.str(std::string());
     }

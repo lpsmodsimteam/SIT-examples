@@ -1,4 +1,5 @@
 #include <iomanip>
+
 #include <sst/sit/sit.hpp>
 
 #include "/home/sabbir/SIT-Examples/monte_carlo_integration/systemc/sc_div.hpp"
@@ -20,22 +21,23 @@ int sc_main(int, char* argv[]) {
 
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
     // Initialize signal handlers
-    SITSocketBuffer m_signal_io(21, false);
-    m_signal_io.set_addr(argv[1]);
+    SITSocketBuffer sit_buf(21, false);
+    sit_buf.set_addr(argv[1]);
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
 
     // ---------- INITIAL HANDSHAKE ---------- //
-    m_signal_io.set(std::to_string(getpid()));
-    m_signal_io.send();
+    sit_buf.set(std::to_string(getpid()));
+    sit_buf.send();
     // ---------- INITIAL HANDSHAKE ---------- //
 
     std::ostringstream _data_out;
+    
 
     while (true) {
 
         // RECEIVING
-        m_signal_io.recv();
-        std::string _data_in = m_signal_io.get();
+        sit_buf.recv();
+        std::string _data_in = sit_buf.get();
 
         if (_data_in[0] == '0') {
             break;
@@ -48,11 +50,13 @@ int sc_main(int, char* argv[]) {
 
         _data_out << std::fixed << std::setprecision(9) << data_out;
 
-        m_signal_io.set(_data_out.str());
-        m_signal_io.send();
+        sit_buf.set(_data_out.str());
+        sit_buf.send();
 
         _data_out.str(std::string());
+
     }
 
     return 0;
+
 }
