@@ -27,10 +27,10 @@ def mt19937_test(dut):
         yield cocotb.triggers.Timer(1, units="ns")
 
         _outputs = (
-            str(int(str(dut.r_num.value), 2)).encode()
-            + str(dut.valid.value).encode()
-            + str(dut.busy.value).encode()
-        )
+            str(dut.r_num.value.integer)
+            + str(dut.valid.value.integer)
+            + str(dut.busy.value.integer)
+        ).encode()
         _sock.sendall(_outputs)
 
     _sock.close()

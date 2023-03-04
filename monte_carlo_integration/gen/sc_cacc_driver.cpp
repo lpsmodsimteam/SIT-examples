@@ -1,4 +1,6 @@
+#include <iomanip>
 #include <sst/sit/bufwidth.hpp>
+
 #include <sst/sit/sit.hpp>
 
 #include "/home/sabbir/SIT-Examples/monte_carlo_integration/systemc/sc_cacc.hpp"
@@ -52,18 +54,18 @@ int sc_main(int, char* argv[]) {
         // SENDING
         sc_start();
 
-        _data_out_str =
-            align_buffer_width(std::to_string(new_inner.read()), 10);
+        _data_out_str = align_buffer_width(std::to_string(new_inner.read()), 10);
         _data_out << _data_out_str;
-        _data_out_str =
-            align_buffer_width(std::to_string(new_outer.read()), 10);
+        _data_out_str = align_buffer_width(std::to_string(new_outer.read()), 10);
         _data_out << _data_out_str;
 
         sit_buf.set(_data_out.str());
         sit_buf.send();
 
         _data_out.str(std::string());
+
     }
 
     return 0;
+
 }
