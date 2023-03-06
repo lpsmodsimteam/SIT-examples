@@ -15,6 +15,7 @@ class mt19937 : public SST::Component {
     SST::Link *m_din_link, *m_dout_link;
 
    public:
+    // constructor for component
     mt19937(SST::ComponentId_t id, SST::Params& params)
         : SST::Component(id),
           sit_buf(12),
@@ -43,6 +44,7 @@ class mt19937 : public SST::Component {
         int child_pid = fork();
 
         if (!child_pid) {
+
             std::string cmd = m_proc + m_ipc_port;
 
             char* args[8];
@@ -93,7 +95,7 @@ class mt19937 : public SST::Component {
             bool keep_recv = _data_in[1] != '0';
             _data_in = 'X' + _data_in.substr(2);
 
-            // inputs from parent SST model, outputs to PyRTL child process
+            // inputs from parent SST model, outputs to child process
             sit_buf.set(_data_in);
 
             if (keep_send) {
@@ -104,7 +106,7 @@ class mt19937 : public SST::Component {
                 sit_buf.recv();
             }
 
-            // inputs to parent SST model, outputs from PyRTL child process
+            // inputs to parent SST model, outputs from child process
             std::string _data_out = sit_buf.get();
             m_dout_link->send(new SST::Interfaces::StringEvent(_data_out));
         }

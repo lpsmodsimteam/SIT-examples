@@ -38,23 +38,21 @@ class sc_cacc : public SST::Component {
         if (!(m_din_link && m_dout_link)) {
             m_output.fatal(CALL_INFO, -1, "Failed to configure port\n");
         }
-
     }
 
     void setup() {
-
         int child_pid = fork();
 
         if (!child_pid) {
 
             char* args[] = {&m_proc[0u], &m_ipc_port[0u], nullptr};
+
             m_output.verbose(
                 CALL_INFO, 1, 0, "Forking process \"%s\"...\n", m_proc.c_str()
             );
             execvp(args[0], args);
 
         } else {
-
             sit_buf.set_addr(m_ipc_port);
             sit_buf.recv();
             if (child_pid == std::stoi(sit_buf.get())) {
@@ -66,9 +64,7 @@ class sc_cacc : public SST::Component {
                     m_proc.c_str()
                 );
             }
-
         }
-
     }
 
     bool tick(SST::Cycle_t) {
@@ -82,7 +78,6 @@ class sc_cacc : public SST::Component {
     }
 
     void handle_event(SST::Event* ev) {
-
         auto* se = dynamic_cast<SST::Interfaces::StringEvent*>(ev);
 
         if (se) {
@@ -91,7 +86,7 @@ class sc_cacc : public SST::Component {
             bool keep_recv = _data_in[1] != '0';
             _data_in = 'X' + _data_in.substr(2);
 
-            // inputs from parent SST model, outputs to SystemC child process
+            // inputs from parent SST model, outputs to child process
             sit_buf.set(_data_in);
 
             if (keep_send) {
@@ -102,12 +97,10 @@ class sc_cacc : public SST::Component {
                 sit_buf.recv();
             }
 
-            // inputs to parent SST model, outputs from SystemC child process
+            // inputs to parent SST model, outputs from child process
             std::string _data_out = sit_buf.get();
             m_dout_link->send(new SST::Interfaces::StringEvent(_data_out));
-
         }
-
     }
 
     // Register the component

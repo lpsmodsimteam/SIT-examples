@@ -1,4 +1,4 @@
-from sit import SSTInteroperability
+from sit import SIT
 
 if __name__ == "__main__":
 
@@ -26,8 +26,7 @@ if __name__ == "__main__":
             ],
         },
     }
-    mt19937 = SSTInteroperability(mt19937_config)
-    mt19937.ingest()
+    mt19937 = SIT(mt19937_config)
     mt19937.generate_black_boxes()
 
     sc_div_config = {
@@ -49,8 +48,7 @@ if __name__ == "__main__":
             "output": [{"name": "data_out", "type": "float", "len": 12}],
         },
     }
-    sc_div = SSTInteroperability(sc_div_config)
-    sc_div.ingest()
+    sc_div = SIT(sc_div_config)
     sc_div.generate_black_boxes()
 
     sc_sumsq_config = {
@@ -72,8 +70,7 @@ if __name__ == "__main__":
             "output": [{"name": "data_out", "type": "float", "len": 12}],
         },
     }
-    sc_sumsq = SSTInteroperability(sc_sumsq_config)
-    sc_sumsq.ingest()
+    sc_sumsq = SIT(sc_sumsq_config)
     sc_sumsq.generate_black_boxes()
 
     sc_cacc_config = {
@@ -99,6 +96,5 @@ if __name__ == "__main__":
             ],
         },
     }
-    sc_cacc = SSTInteroperability(sc_cacc_config)
-    sc_cacc.ingest()
+    sc_cacc = SIT(sc_cacc_config)
     sc_cacc.generate_black_boxes()
