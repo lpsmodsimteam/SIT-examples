@@ -87,20 +87,4 @@ if (${SIT_FOUND})
     _sst_compile_link(libmonte_carlo.so)
     # -------------------- SST EXECUTABLES --------------------
 
-    # add_custom_target(run
-    #     COMMAND ${SST_BIN} ${PROJECT_SOURCE_DIR}/run.py ${START_SEED} ${END_SEED}
-    # )
-
-    # add_custom_target(stats
-    #     COMMAND mkdir -p ${PROJECT_SOURCE_DIR}/data
-    #     COMMAND python ${PROJECT_SOURCE_DIR}/stats/parsemem.py ${START_SEED} ${END_SEED}
-    # )
-
-    # add_custom_target(plot
-    #     COMMAND python ${PROJECT_SOURCE_DIR}/stats/plot.py data/${START_SEED}.json
-    # )
-
-    # unset(START_SEED CACHE)
-    # unset(END_SEED CACHE)
-
 endif()

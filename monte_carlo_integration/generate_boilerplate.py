@@ -10,10 +10,8 @@ if __name__ == "__main__":
             "module_dir": "verilog",
         },
         "ports": {
-            "clock": [
-                {"name": "clk", "type": "int", "len": 1},
-            ],
             "input": [
+                {"name": "clk", "type": "int", "len": 1},
                 {"name": "rst", "type": "int", "len": 1},
                 {"name": "seed_val", "type": "int", "len": 32},
                 {"name": "seed_start", "type": "int", "len": 1},
@@ -27,7 +25,7 @@ if __name__ == "__main__":
         },
     }
     mt19937 = SIT(mt19937_config)
-    mt19937.generate_black_boxes()
+    mt19937.generate_boilerplate()
 
     sc_div_config = {
         "hdl": "systemc",
@@ -49,7 +47,7 @@ if __name__ == "__main__":
         },
     }
     sc_div = SIT(sc_div_config)
-    sc_div.generate_black_boxes()
+    sc_div.generate_boilerplate()
 
     sc_sumsq_config = {
         "hdl": "systemc",
@@ -71,7 +69,7 @@ if __name__ == "__main__":
         },
     }
     sc_sumsq = SIT(sc_sumsq_config)
-    sc_sumsq.generate_black_boxes()
+    sc_sumsq.generate_boilerplate()
 
     sc_cacc_config = {
         "hdl": "systemc",
@@ -97,4 +95,4 @@ if __name__ == "__main__":
         },
     }
     sc_cacc = SIT(sc_cacc_config)
-    sc_cacc.generate_black_boxes()
+    sc_cacc.generate_boilerplate()
